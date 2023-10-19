@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "999491928239",
+    "project_id": "cvision-943d3",
+    "storage_bucket": "cvision-943d3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:999491928239:android:6532c4ed687087b63b145a",
+        "android_client_info": {
+          "package_name": "com.cvision.cvision"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzilOqBpokVkKsqHXsy1R-dfQpX_U5Q0Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
