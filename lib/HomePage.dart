@@ -5,12 +5,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 User? loggedinUser;
 
-class HomeScreen extends StatefulWidget {
+class HomePage extends StatefulWidget {
+  factory HomePage() => HomePage._();
+
+  HomePage._(); 
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomePageState extends State<HomePage> {
   final _auth = FirebaseAuth.instance;
   String result = '';
   String productName = '';

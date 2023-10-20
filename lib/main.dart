@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:rolling_bottom_bar/rolling_bottom_bar.dart';
+import 'package:rolling_bottom_bar/rolling_bottom_bar_item.dart';
 import 'welcome_screen.dart';
-import 'home_screen.dart';
-import 'signup_screen.dart';
-import 'login_screen.dart';
+import 'HomePage.dart';
+import 'LoginPage.dart';
+import 'SignupPage.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,17 +25,55 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  MyApp({super.key});
+  final _pageController = PageController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: 'welcome_screen',
-      routes: {
-        'welcome_screen': (context) => WelcomeScreen(),
-        'registration_screen': (context) => RegistrationScreen(),
-        'login_screen': (context) => LoginScreen(),
-        'home_screen': (context) => HomeScreen()
-      },
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text("Bottom Navigation Bar App"),
+          backgroundColor: Colors.indigo,
+        ),
+        body: PageView(
+          controller: _pageController,
+          children: <Widget>[
+            LoginPage(),
+            SignupPage(),
+            HomePage(),
+          ],
+        ),
+        extendBody: true,
+        bottomNavigationBar: RollingBottomBar(
+          color: const Color.fromARGB(255, 255, 240, 219),
+          controller: _pageController,
+          flat: true,
+          useActiveColorByDefault: false,
+          items: const [
+            RollingBottomBarItem(Icons.home,
+                label: 'Login', activeColor: Colors.redAccent),
+            RollingBottomBarItem(Icons.camera,
+                label: 'Register', activeColor: Colors.blueAccent),
+            RollingBottomBarItem(Icons.person,
+                label: 'Home', activeColor: Colors.green),
+          ],
+          enableIconRotation: true,
+          onTap: (index) {
+            _pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeOut,
+            );
+          },
+        ),
+      ),
     );
   }
 }

@@ -3,7 +3,7 @@ import 'rounded_button.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:flutter/material.dart';
 
-const kTextFieldDecoration = InputDecoration(
+var kTextFieldDecoration = InputDecoration(
     hintText: 'Enter a value',
     hintStyle: TextStyle(color: Colors.grey),
     contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
@@ -19,14 +19,18 @@ const kTextFieldDecoration = InputDecoration(
       borderRadius: BorderRadius.all(Radius.circular(32.0)),
     ));
 
-class LoginScreen extends StatefulWidget {
+class LoginPage extends StatefulWidget {
+  factory LoginPage() => LoginPage._();
+
+  LoginPage._(); // Private constructor
+
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
 final _auth = FirebaseAuth.instance;
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginPageState extends State<LoginPage> {
   String email = "";
   String password = "";
   bool showSpinner = false;
@@ -68,25 +72,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 24.0,
               ),
               RoundedButton(
-                  colour: Colors.lightBlueAccent,
-                  title: 'Log In',
-                  onPressed: () async {
-                    setState(() {
-                      showSpinner = true;
-                    });
-                    try {
-                      final user = await _auth.signInWithEmailAndPassword(
-                          email: email, password: password);
-                      if (user != null) {
-                        Navigator.pushNamed(context, 'home_screen');
-                      }
-                    } catch (e) {
-                      print(e);
+                colour: Colors.lightBlueAccent,
+                title: 'Log In',
+                onPressed: () async {
+                  setState(() {
+                    showSpinner = true;
+                  });
+                  try {
+                    final user = await _auth.signInWithEmailAndPassword(
+                        email: email, password: password);
+                    if (user != null) {
+                      Navigator.pushNamed(context, 'home_screen');
                     }
-                    setState(() {
-                      showSpinner = false;
-                    });
-                  }),
+                  } catch (e) {
+                    print(e);
+                  }
+                  setState(() {
+                    showSpinner = false;
+                  });
+                }
+              ),
             ],
           ),
         ),

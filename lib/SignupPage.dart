@@ -22,12 +22,16 @@ const kTextFieldDecoration = InputDecoration(
   ),
 );
 
-class RegistrationScreen extends StatefulWidget {
+class SignupPage extends StatefulWidget {
+  factory SignupPage() => SignupPage._();
+
+  SignupPage._(); 
+
   @override
-  _RegistrationScreenState createState() => _RegistrationScreenState();
+  _SignupPageState createState() => _SignupPageState();
 }
 
-class _RegistrationScreenState extends State<RegistrationScreen> {
+class _SignupPageState extends State<SignupPage> {
   final _auth = FirebaseAuth.instance;
   String email = "";
   String password = "";
