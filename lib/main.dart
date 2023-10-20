@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:rolling_bottom_bar/rolling_bottom_bar.dart';
 import 'package:rolling_bottom_bar/rolling_bottom_bar_item.dart';
 import 'welcome_screen.dart';
-import 'HomePage.dart';
+import 'StartPage.dart';
 import 'LoginPage.dart';
 import 'SignupPage.dart';
 
@@ -38,31 +38,29 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(
-          title: Text("Bottom Navigation Bar App"),
-          backgroundColor: Colors.indigo,
-        ),
+        appBar: null,
         body: PageView(
           controller: _pageController,
           children: <Widget>[
+            StartPage(),
             LoginPage(),
             SignupPage(),
-            HomePage(),
           ],
         ),
         extendBody: true,
         bottomNavigationBar: RollingBottomBar(
-          color: const Color.fromARGB(255, 255, 240, 219),
+          color: const Color.fromARGB(255, 0x4C, 0x9F, 0xC1),
           controller: _pageController,
           flat: true,
+          itemColor: Colors.white,
           useActiveColorByDefault: false,
           items: const [
             RollingBottomBarItem(Icons.home,
-                label: 'Login', activeColor: Colors.redAccent),
+                label: 'Home', activeColor: Colors.white),
             RollingBottomBarItem(Icons.camera,
-                label: 'Register', activeColor: Colors.blueAccent),
+                label: 'Login', activeColor: Colors.white),
             RollingBottomBarItem(Icons.person,
-                label: 'Home', activeColor: Colors.green),
+                label: 'Register', activeColor: Colors.white),
           ],
           enableIconRotation: true,
           onTap: (index) {
