@@ -3,8 +3,6 @@ import 'rounded_button.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:flutter/material.dart';
 
-//code for designing the UI of our text field where the user writes his email id or password
-
 const kTextFieldDecoration = InputDecoration(
     hintText: 'Enter a value',
     hintStyle: TextStyle(color: Colors.grey),
