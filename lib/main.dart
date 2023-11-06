@@ -28,6 +28,22 @@ void main() async {
 class MyApp extends StatelessWidget {
   MyApp({super.key});
   final _pageController = PageController();
+  bool isConnected = false; // Set an initial condition
+
+  List<RollingBottomBarItem> getNavBarItems(bool conditionX) {
+  if (isConnected) {
+    return [
+      RollingBottomBarItem(Icons.home, label: 'Home', activeColor: Colors.white),
+      RollingBottomBarItem(Icons.camera, label: 'Ma caméra', activeColor: Colors.white),
+    ];
+  } else {
+    return [
+      RollingBottomBarItem(Icons.home, label: 'Home', activeColor: Colors.white),
+      RollingBottomBarItem(Icons.camera, label: 'Login', activeColor: Colors.white),
+      RollingBottomBarItem(Icons.person, label: 'Register', activeColor: Colors.white),
+    ];
+  }
+}
 
   @override
   void dispose() {
@@ -58,14 +74,7 @@ class MyApp extends StatelessWidget {
           flat: true,
           itemColor: Colors.white,
           useActiveColorByDefault: false,
-          items: const [
-            RollingBottomBarItem(Icons.home,
-                label: 'Home', activeColor: Colors.white),
-            RollingBottomBarItem(Icons.camera,
-                label: 'Login', activeColor: Colors.white),
-            RollingBottomBarItem(Icons.person,
-                label: 'Register', activeColor: Colors.white),
-          ],
+          items: getNavBarItems(isConnected), // Use the function here
           enableIconRotation: true,
           onTap: (index) {
             _pageController.animateToPage(
