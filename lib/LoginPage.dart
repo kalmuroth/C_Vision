@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'rounded_button.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:flutter/material.dart';
+import 'HomePage.dart';
 
 var kTextFieldDecoration = InputDecoration(
   hintText: 'Enter a value',
@@ -93,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                         password: password,
                       );
                       if (user != null) {
-                        Navigator.pushNamed(context, 'home_screen');
+                        Navigator.pushNamed(context, 'HomePage');
                       }
                     } catch (e) {
                       print(e);

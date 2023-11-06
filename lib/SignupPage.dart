@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'rounded_button.dart';
+import 'HomePage.dart';
 
 //code for designing the UI of our text field where the user writes his email id or password
 
@@ -85,7 +86,7 @@ class _SignupPageState extends State<SignupPage> {
                       final newUser = await _auth.createUserWithEmailAndPassword(
                           email: email, password: password);
                       if (newUser != null) {
-                        Navigator.pushNamed(context, 'home_screen');
+                        Navigator.pushNamed(context, 'HomePage');
                       }
                     } catch (e) {
                       print(e);
