@@ -5,7 +5,8 @@ import 'package:rolling_bottom_bar/rolling_bottom_bar_item.dart';
 import 'StartPage.dart';
 import 'LoginPage.dart';
 import 'SignupPage.dart';
-import 'HomePage.dart';
+import 'ScannerPage.dart';
+import 'CameraPage.dart';
 
 
 void main() async {
@@ -34,8 +35,11 @@ List<RollingBottomBarItem> nonAdminWidgets(_MyAppState parent) {
 
 List<RollingBottomBarItem> adminWidgets(_MyAppState parent) {
   return <RollingBottomBarItem>[
-    RollingBottomBarItem(Icons.camera, label: 'Camera', activeColor: Colors.white),
-    RollingBottomBarItem(Icons.home, label: 'Scan', activeColor: Colors.white),
+    RollingBottomBarItem(Icons.home, label: 'Home', activeColor: Colors.white),
+    RollingBottomBarItem(Icons.camera, label: 'Login', activeColor: Colors.white),
+    RollingBottomBarItem(Icons.person, label: 'Register', activeColor: Colors.white),
+    RollingBottomBarItem(Icons.audiotrack, label: 'Scanner', activeColor: Colors.white),
+    RollingBottomBarItem(Icons.beach_access, label: 'Camera', activeColor: Colors.white),
   ];
 }
 
@@ -77,7 +81,8 @@ class _MyAppState extends State<MyApp> {
             StartPage(),
             LoginPage(pageController: _pageController, updateIsConnected: updateIsConnected),
             SignupPage(),
-            HomePage(isConnected: isConnected),
+            ScannerPage(isConnected: isConnected),
+            CameraPage(isConnected: isConnected),
           ],
         ),
         extendBody: true,

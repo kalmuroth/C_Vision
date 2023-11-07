@@ -9,16 +9,16 @@ import 'package:provider/provider.dart';
 
 User? loggedinUser;
 
-class HomePage extends StatefulWidget {
+class ScannerPage extends StatefulWidget {
   bool isConnected; // Define the parameter
 
-  HomePage({required this.isConnected}); // Named constructor to accept the parameter
+  ScannerPage({required this.isConnected}); // Named constructor to accept the parameter
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _ScannerPageState createState() => _ScannerPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _ScannerPageState extends State<ScannerPage> {
   final _auth = FirebaseAuth.instance;
   String result = '';
   String productName = '';
