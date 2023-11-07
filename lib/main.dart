@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:rolling_bottom_bar/rolling_bottom_bar.dart';
 import 'package:rolling_bottom_bar/rolling_bottom_bar_item.dart';
-import 'welcome_screen.dart';
 import 'StartPage.dart';
 import 'LoginPage.dart';
 import 'SignupPage.dart';
@@ -25,37 +24,50 @@ void main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  MyApp({super.key});
-  final _pageController = PageController();
-  bool isConnected = false; // Set an initial condition
-
-  List<RollingBottomBarItem> getNavBarItems(bool conditionX) {
-  if (isConnected) {
-    return [
-      RollingBottomBarItem(Icons.home, label: 'Home', activeColor: Colors.white),
-      RollingBottomBarItem(Icons.camera, label: 'Ma caméra', activeColor: Colors.white),
-    ];
-  } else {
-    return [
+List<RollingBottomBarItem> nonAdminWidgets(_MyAppState parent) {
+    return <RollingBottomBarItem>[
       RollingBottomBarItem(Icons.home, label: 'Home', activeColor: Colors.white),
       RollingBottomBarItem(Icons.camera, label: 'Login', activeColor: Colors.white),
       RollingBottomBarItem(Icons.person, label: 'Register', activeColor: Colors.white),
     ];
   }
+
+List<RollingBottomBarItem> adminWidgets(_MyAppState parent) {
+  return <RollingBottomBarItem>[
+    RollingBottomBarItem(Icons.camera, label: 'Camera', activeColor: Colors.white),
+    RollingBottomBarItem(Icons.home, label: 'Scan', activeColor: Colors.white),
+  ];
 }
+
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final PageController _pageController = PageController();
+
+  void updateIsConnected(bool value) {
+    setState(() {
+      isConnected = value;
+    });
+  }
+
+  static bool isConnected = false;
+  int _currentIndex = 0;
 
   @override
   void dispose() {
     _pageController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      routes: {
-        'HomePage': (context) => HomePage()
-      },
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: null,
@@ -63,8 +75,9 @@ class MyApp extends StatelessWidget {
           controller: _pageController,
           children: <Widget>[
             StartPage(),
-            LoginPage(),
+            LoginPage(pageController: _pageController, updateIsConnected: updateIsConnected),
             SignupPage(),
+            HomePage(isConnected: isConnected),
           ],
         ),
         extendBody: true,
@@ -74,7 +87,7 @@ class MyApp extends StatelessWidget {
           flat: true,
           itemColor: Colors.white,
           useActiveColorByDefault: false,
-          items: getNavBarItems(isConnected), // Use the function here
+          items: isConnected ? adminWidgets(this) : nonAdminWidgets(this),
           enableIconRotation: true,
           onTap: (index) {
             _pageController.animateToPage(

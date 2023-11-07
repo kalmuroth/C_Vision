@@ -3,6 +3,7 @@ import 'rounded_button.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:flutter/material.dart';
 import 'HomePage.dart';
+import 'main.dart';
 
 var kTextFieldDecoration = InputDecoration(
   hintText: 'Enter a value',
@@ -22,9 +23,10 @@ var kTextFieldDecoration = InputDecoration(
 );
 
 class LoginPage extends StatefulWidget {
-  factory LoginPage() => LoginPage._();
+  final PageController pageController;
+  final Function(bool) updateIsConnected;
 
-  LoginPage._(); // Private constructor
+  LoginPage({required this.pageController, required this.updateIsConnected});
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -36,6 +38,11 @@ class _LoginPageState extends State<LoginPage> {
   String email = "";
   String password = "";
   bool showSpinner = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +64,9 @@ class _LoginPageState extends State<LoginPage> {
                   keyboardType: TextInputType.emailAddress,
                   textAlign: TextAlign.center,
                   onChanged: (value) {
-                    email = value;
-                    // Do something with the user input.
+                    setState(() {
+                      email = value;
+                    });
                   },
                   decoration: kTextFieldDecoration.copyWith(
                     hintText: 'Enter your email',
@@ -71,8 +79,9 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true,
                   textAlign: TextAlign.center,
                   onChanged: (value) {
-                    password = value;
-                    // Do something with the user input.
+                    setState(() {
+                      password = value;
+                    });
                   },
                   decoration: kTextFieldDecoration.copyWith(
                     hintText: 'Enter your password.',
@@ -94,7 +103,14 @@ class _LoginPageState extends State<LoginPage> {
                         password: password,
                       );
                       if (user != null) {
-                        Navigator.pushNamed(context, 'HomePage');
+                        widget.pageController.animateToPage(
+                          4,
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOut,
+                        );
+                        setState(() {
+                          widget.updateIsConnected(true);
+                        });
                       }
                     } catch (e) {
                       print(e);

@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'rounded_button.dart';
+import 'rounded_button.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:provider/provider.dart'; 
 
 User? loggedinUser;
 
 class HomePage extends StatefulWidget {
-  factory HomePage() => HomePage._();
+  bool isConnected; // Define the parameter
 
-  HomePage._(); 
+  HomePage({required this.isConnected}); // Named constructor to accept the parameter
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -18,6 +22,7 @@ class _HomePageState extends State<HomePage> {
   final _auth = FirebaseAuth.instance;
   String result = '';
   String productName = '';
+  bool showSpinner = false;
 
   void initState() {
     super.initState();
@@ -57,31 +62,42 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(
-              onPressed: () async {
-                var res = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SimpleBarcodeScannerPage(),
-                  ),
-                );
+      backgroundColor: Colors.transparent, // Set the Scaffold's background color to transparent
+      body: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Color(0xFFF9F9FB), // Set the color to #F9F9FB
+        ),
+        child: ModalProgressHUD(
+          inAsyncCall: showSpinner,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    var res = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SimpleBarcodeScannerPage(),
+                      ),
+                    );
 
-                if (res is String) {
-                  setState(() {
-                    result = res;
-                  });
-                  getProduct(); // Call the getProduct method after receiving the result
-                }
-              },
-              child: const Text('Open Scanner'),
+                    if (res is String) {
+                      setState(() {
+                        result = res;
+                      });
+                      getProduct(); // Call the getProduct method after receiving the result
+                    }
+                  },
+                  child: const Text('Open Scanner'),
+                ),
+                Text('Barcode Result: $result'),
+                Text('Product Value: $productName'),
+              ],
             ),
-            Text('Barcode Result: $result'),
-            Text('Product Value: $productName'),
-          ],
+          ),
         ),
       ),
     );
