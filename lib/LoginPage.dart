@@ -153,13 +153,16 @@ class _LoginPageState extends State<LoginPage> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(100)),
-                  color:  Color.fromRGBO(32,64,81,1.0),),
+                  color: Color.fromRGBO(59,105,120,1.0),
+                ),
                 child: TextButton(
                   child: Text(
                     "Login",
                     style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
+                      color: Color.fromRGBO(132,169,172,1.0)
+                    ),
                   ),
                   onPressed: () async {
                     setState(() {
@@ -172,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                       );
                       if (user != null) {
                         widget.pageController.animateToPage(
-                          4,
+                          2,
                           duration: const Duration(milliseconds: 400),
                           curve: Curves.easeOut,
                         );

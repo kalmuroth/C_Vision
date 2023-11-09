@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:rolling_bottom_bar/rolling_bottom_bar.dart';
 import 'package:rolling_bottom_bar/rolling_bottom_bar_item.dart';
-import 'StartPage.dart';
 import 'LoginPage.dart';
 import 'SignupPage.dart';
 import 'ScannerPage.dart';
 import 'CameraPage.dart';
-import 'ListPage.dart';
 
 
 void main() async {
@@ -28,7 +26,6 @@ void main() async {
 
 List<RollingBottomBarItem> nonAdminWidgets(_MyAppState parent) {
     return <RollingBottomBarItem>[
-      RollingBottomBarItem(Icons.home, label: 'Home', activeColor: Colors.white),
       RollingBottomBarItem(Icons.camera, label: 'Login', activeColor: Colors.white),
       RollingBottomBarItem(Icons.person, label: 'Register', activeColor: Colors.white),
     ];
@@ -36,11 +33,9 @@ List<RollingBottomBarItem> nonAdminWidgets(_MyAppState parent) {
 
 List<RollingBottomBarItem> adminWidgets(_MyAppState parent) {
   return <RollingBottomBarItem>[
-    RollingBottomBarItem(Icons.home, label: 'Home', activeColor: Colors.white),
     RollingBottomBarItem(Icons.camera, label: 'Login', activeColor: Colors.white),
     RollingBottomBarItem(Icons.person, label: 'Register', activeColor: Colors.white),
     RollingBottomBarItem(Icons.audiotrack, label: 'Scanner', activeColor: Colors.white),
-    RollingBottomBarItem(Icons.favorite, label: 'My List', activeColor: Colors.white),
     RollingBottomBarItem(Icons.beach_access, label: 'Camera', activeColor: Colors.white),
   ];
 }
@@ -80,17 +75,15 @@ class _MyAppState extends State<MyApp> {
         body: PageView(
           controller: _pageController,
           children: <Widget>[
-            StartPage(),
             LoginPage(pageController: _pageController, updateIsConnected: updateIsConnected),
             SignupPage(),
             ScannerPage(isConnected: isConnected),
-            CameraPage(isConnected: isConnected),
-            ListPage(isConnected: isConnected),
+            CameraPage(isConnected: isConnected)
           ],
         ),
         extendBody: true,
         bottomNavigationBar: RollingBottomBar(
-          color: const Color.fromARGB(255, 0x4C, 0x9F, 0xC1),
+          color: const Color.fromRGBO(59,105,120,1.0),
           controller: _pageController,
           flat: true,
           itemColor: Colors.white,
