@@ -37,92 +37,95 @@ class _SignupPageState extends State<SignupPage> {
   String email = "";
   String password = "";
   bool showSpinner = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: ListView(
-        children: <Widget>[
-          Stack(
-            children: <Widget>[
-              ClipPath(
+      body: ModalProgressHUD(
+        inAsyncCall: showSpinner,
+        child: ListView(
+          children: <Widget>[
+            Stack(
+              children: <Widget>[
+                ClipPath(
                   clipper: WaveClipper2(),
-                  child:Container(
+                  child: Container(
                     child: Column(),
                     width: MediaQuery.of(context).size.width,
                     height: 300,
                     decoration: BoxDecoration(
-                        color: Color.fromRGBO(132,169,172,1.0)
+                      color: Color.fromRGBO(132,169,172,1.0),
                     ),
-                  )
-              ),
-              ClipPath(
-                clipper: WaveClipper3(),
-                child: Container(
-                  child: Column(   children: <Widget>[
-                    SizedBox(
-                      height: 60,
-                    ),
-                  ],
-                  ),
-                  width: MediaQuery.of(context).size.width,
-                  height: 300,
-                  decoration: BoxDecoration(
-                      color: Color.fromRGBO(59,105,120,1.0)
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32),
-            child: Material(
-              elevation: 2.0,
-              borderRadius: BorderRadius.all(Radius.circular(30)),
-              child: TextField(
-                onChanged: (value) {
+                ClipPath(
+                  clipper: WaveClipper3(),
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        SizedBox(
+                          height: 60,
+                        ),
+                      ],
+                    ),
+                    width: MediaQuery.of(context).size.width,
+                    height: 300,
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO(59,105,120,1.0),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32),
+              child: Material(
+                elevation: 2.0,
+                borderRadius: BorderRadius.all(Radius.circular(30)),
+                child: TextField(
+                  onChanged: (value) {
                     setState(() {
                       email = value;
                     });
-                },
-                cursorColor: Color.fromRGBO(32,64,81,1.0),
-                
-                decoration: InputDecoration(
-                  hintText: "Email",
-                  prefixIcon: Material(
-                    elevation: 0,
-                    borderRadius: BorderRadius.all(Radius.circular(30)),
-                    child: Icon(
-                      Icons.email,
-                      color:  Color.fromRGBO(32,64,81,1.0),
+                  },
+                  cursorColor: Color.fromRGBO(32,64,81,1.0),
+                  decoration: InputDecoration(
+                    hintText: "Email",
+                    prefixIcon: Material(
+                      elevation: 0,
+                      borderRadius: BorderRadius.all(Radius.circular(30)),
+                      child: Icon(
+                        Icons.email,
+                        color:  Color.fromRGBO(32,64,81,1.0),
+                      ),
                     ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 25,vertical: 13),
                   ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 25,vertical: 13),
                 ),
               ),
             ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32),
-            child: Material(
-              elevation: 2.0,
-              borderRadius: BorderRadius.all(Radius.circular(30)),
-              child: TextField(
-                onChanged: (value) {
+            SizedBox(
+              height: 20,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32),
+              child: Material(
+                elevation: 2.0,
+                borderRadius: BorderRadius.all(Radius.circular(30)),
+                child: TextField(
+                  onChanged: (value) {
                     setState(() {
                       password = value;
                     });
-                },
-                obscureText: true,
-                cursorColor:  Color.fromRGBO(32,64,81,1.0),
-                decoration: InputDecoration(
+                  },
+                  obscureText: true,
+                  cursorColor:  Color.fromRGBO(32,64,81,1.0),
+                  decoration: InputDecoration(
                     hintText: "Password",
                     prefixIcon: Material(
                       elevation: 0,
@@ -133,23 +136,24 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                     ),
                     border: InputBorder.none,
-                    contentPadding:
-                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 13),
+                  ),
+                ),
               ),
             ),
-          ),
-          SizedBox(
-            height: 25,
-          ),
-          Padding(
+            SizedBox(
+              height: 25,
+            ),
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 32),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(100)),
-                  color:  Color.fromRGBO(59,105,120,1.0)),
+                  color:  Color.fromRGBO(59,105,120,1.0),
+                ),
                 child: TextButton(
                   child: Text(
-                    "Login",
+                    "Sign Up",
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: Color.fromRGBO(132,169,172,1.0),
@@ -160,23 +164,28 @@ class _SignupPageState extends State<SignupPage> {
                     setState(() {
                       showSpinner = true;
                     });
+
                     try {
                       final newUser = await _auth.createUserWithEmailAndPassword(
                           email: email, password: password);
+
                       if (newUser != null) {
                         Navigator.pushNamed(context, 'HomePage');
                       }
                     } catch (e) {
                       print(e);
                     }
+
                     setState(() {
                       showSpinner = false;
                     });
                   },
                 ),
-              )),
-          SizedBox(height:5),
-        ],
+              ),
+            ),
+            SizedBox(height: 5),
+          ],
+        ),
       ),
     );
   }
