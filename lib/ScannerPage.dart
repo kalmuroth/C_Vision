@@ -11,8 +11,12 @@ User? loggedinUser;
 final makeCard = (Map<String, dynamic> product) => Card(
   elevation: 8.0,
   margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+  color: Colors.transparent, // Set the card background color to transparent
   child: Container(
-    decoration: BoxDecoration(color: Color.fromRGBO(59,105,120,1.0)),
+    decoration: BoxDecoration(
+      color: Color.fromRGBO(59,105,120,1.0),
+      borderRadius: BorderRadius.circular(20),
+    ),
     child: makeListTile(product),
   ),
 );
@@ -22,8 +26,8 @@ final makeListTile = (Map<String, dynamic> product) => ListTile(
   leading: Container(
     padding: EdgeInsets.only(right: 12.0),
     decoration: new BoxDecoration(
-        border: new Border(
-            right: new BorderSide(width: 1.0, color: Colors.white))),
+      border: new Border(
+        right: new BorderSide(width: 1.0, color: Colors.white))),
     child: Icon(Icons.autorenew, color: Colors.white),
   ),
   title: Text(
@@ -95,19 +99,19 @@ class _ScannerPageState extends State<ScannerPage> {
   }
 
   void postProduct() async {
-  try {
-    final User? user = _auth.currentUser;
-    if (user != null) {
-      if (productId.isNotEmpty) {
-        final documentReference = FirebaseFirestore.instance.collection('product').doc(productId);
-        await documentReference.update({
-          'user': user.uid
-        });
-        setState(() {
-          productId = '';
-        });
+    try {
+      final User? user = _auth.currentUser;
+      if (user != null) {
+        if (productId.isNotEmpty) {
+          final documentReference = FirebaseFirestore.instance.collection('product').doc(productId);
+          await documentReference.update({
+            'user': user.uid
+          });
+          setState(() {
+            productId = '';
+          });
+        }
       }
-    }
     } catch (e) {
       print(e);
     }
@@ -121,11 +125,9 @@ class _ScannerPageState extends State<ScannerPage> {
             .collection('product')
             .where('user', isEqualTo: user.uid)
             .get();
-
         if (querySnapshot.docs.isNotEmpty) {
           return querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
         } else {
-
           return null;
         }
       } catch (e) {
@@ -167,18 +169,18 @@ class _ScannerPageState extends State<ScannerPage> {
                         ),
                         Expanded(
                           child: products != null
-                              ? ListView.builder(
-                                  itemCount: products!.length,
-                                  scrollDirection: Axis.vertical,
-                                  shrinkWrap: true,
-                                  itemBuilder: (BuildContext context, int index) {
-                                    final product = products![index];
-                                    return makeCard(product);
-                                  },
-                                )
-                              : Center(
-                                  child: Text('No products found or user not authenticated.'),
-                                ),
+                            ? ListView.builder(
+                              itemCount: products!.length,
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemBuilder: (BuildContext context, int index) {
+                                final product = products![index];
+                                return makeCard(product);
+                              },
+                            )
+                          : Center(
+                            child: CircularProgressIndicator(), // Show spinner while loading
+                          ),
                         ),
                       ],
                     ),
@@ -189,20 +191,27 @@ class _ScannerPageState extends State<ScannerPage> {
                       padding: const EdgeInsets.all(20.0),
                       child: FloatingActionButton(
                         onPressed: () async {
-                      var res = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SimpleBarcodeScannerPage(),
-                        ),
-                      );
-                      if (res is String) {
-                        setState(() {
-                          result = res;
-                        });
-                        await getProduct();
-                        postProduct();
-                      }
-                    },
+                          setState(() {
+                            showSpinner = true; // Set spinner to true while loading
+                          });
+                          var res = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SimpleBarcodeScannerPage(),
+                            ),
+                          );
+                          if (res is String) {
+                            setState(() {
+                              result = res;
+                            });
+                            await getProduct();
+                            postProduct();
+                            await loadProducts(); // Refresh the list after adding a product
+                          }
+                          setState(() {
+                            showSpinner = false; // Set spinner to false after loading
+                          });
+                        },
                         child: Icon(Icons.add),
                         backgroundColor: Color.fromRGBO(59,105,120,1.0),
                       ),

@@ -163,10 +163,10 @@ class _LoginPageState extends State<LoginPage> {
                   color: Color.fromRGBO(59, 105, 120, 1.0),
                 ),
                 child: AnimatedButton(
-                  animatedOn: AnimatedOn.onHover,
+                  animatedOn: AnimatedOn.onTap,
                   height: 70,
                   width: double.infinity, // Take the whole width of the container
-                  text: 'SUBMIT',
+                  text: 'LOGIN',
                   isReverse: true,
                   selectedTextColor: Colors.white,
                   transitionType: TransitionType.BOTTOM_CENTER_ROUNDER,

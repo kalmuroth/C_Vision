@@ -155,7 +155,7 @@ class _SignupPageState extends State<SignupPage> {
                   color: Color.fromRGBO(59, 105, 120, 1.0),
                 ),
                 child: AnimatedButton(
-                  animatedOn: AnimatedOn.onHover,
+                  animatedOn: AnimatedOn.onTap,
                   height: 70,
                   width: double.infinity, 
                   text: 'REGISTER',
