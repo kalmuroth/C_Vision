@@ -25,21 +25,18 @@ void main() async {
 }
 
 List<RollingBottomBarItem> nonAdminWidgets(_MyAppState parent) {
-    return <RollingBottomBarItem>[
-      RollingBottomBarItem(Icons.camera, label: 'Login', activeColor: Colors.white),
-      RollingBottomBarItem(Icons.person, label: 'Register', activeColor: Colors.white),
-    ];
-  }
-
-List<RollingBottomBarItem> adminWidgets(_MyAppState parent) {
   return <RollingBottomBarItem>[
     RollingBottomBarItem(Icons.camera, label: 'Login', activeColor: Colors.white),
     RollingBottomBarItem(Icons.person, label: 'Register', activeColor: Colors.white),
+  ];
+}
+
+List<RollingBottomBarItem> adminWidgets(_MyAppState parent) {
+  return <RollingBottomBarItem>[
     RollingBottomBarItem(Icons.audiotrack, label: 'Scanner', activeColor: Colors.white),
     RollingBottomBarItem(Icons.beach_access, label: 'Camera', activeColor: Colors.white),
   ];
 }
-
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -68,22 +65,27 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> pages = isConnected
+        ? [
+            ScannerPage(isConnected: isConnected),
+            CameraPage(isConnected: isConnected),
+          ]
+        : [
+            LoginPage(pageController: _pageController, updateIsConnected: updateIsConnected),
+            SignupPage(),
+          ];
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: null,
         body: PageView(
           controller: _pageController,
-          children: <Widget>[
-            LoginPage(pageController: _pageController, updateIsConnected: updateIsConnected),
-            SignupPage(),
-            ScannerPage(isConnected: isConnected),
-            CameraPage(isConnected: isConnected)
-          ],
+          children: pages,
         ),
         extendBody: true,
         bottomNavigationBar: RollingBottomBar(
-          color: const Color.fromRGBO(59,105,120,1.0),
+          color: const Color.fromRGBO(59, 105, 120, 1.0),
           controller: _pageController,
           flat: true,
           itemColor: Colors.white,

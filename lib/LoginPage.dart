@@ -175,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                       );
                       if (user != null) {
                         widget.pageController.animateToPage(
-                          2,
+                          1,
                           duration: const Duration(milliseconds: 400),
                           curve: Curves.easeOut,
                         );
