@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'rounded_button.dart';
 import 'ScannerPage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_animated_button/flutter_animated_button.dart';
 
 //code for designing the UI of our text field where the user writes his email id or password
 
@@ -24,9 +26,10 @@ const kTextFieldDecoration = InputDecoration(
 );
 
 class SignupPage extends StatefulWidget {
-  factory SignupPage() => SignupPage._();
+  final PageController pageController;
+  final Function(bool) updateIsConnected;
 
-  SignupPage._(); 
+  SignupPage({required this.pageController, required this.updateIsConnected});
 
   @override
   _SignupPageState createState() => _SignupPageState();
@@ -149,35 +152,46 @@ class _SignupPageState extends State<SignupPage> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(100)),
-                  color:  Color.fromRGBO(59,105,120,1.0),
+                  color: Color.fromRGBO(59, 105, 120, 1.0),
                 ),
-                child: TextButton(
-                  child: Text(
-                    "Sign Up",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: Color.fromRGBO(132,169,172,1.0),
-                      fontSize: 18
-                    ),
-                  ),
-                  onPressed: () async {
+                child: AnimatedButton(
+                  animatedOn: AnimatedOn.onHover,
+                  height: 70,
+                  width: double.infinity, 
+                  text: 'REGISTER',
+                  isReverse: true,
+                  selectedTextColor: Colors.white,
+                  transitionType: TransitionType.BOTTOM_CENTER_ROUNDER,
+                  backgroundColor: Color.fromRGBO(132, 169, 172, 1.0),
+                  selectedBackgroundColor: Color.fromRGBO(59, 105, 120, 1.0),
+                  borderColor: Colors.black,
+                  borderWidth: 1,
+                  borderRadius: 50,
+                  onPress: () async {
                     setState(() {
-                      showSpinner = true;
+                      showSpinner = true; 
                     });
-
                     try {
-                      final newUser = await _auth.createUserWithEmailAndPassword(
-                          email: email, password: password);
+                      final user = await _auth.signInWithEmailAndPassword(
+                        email: email,
+                        password: password,
+                      );
 
-                      if (newUser != null) {
-                        Navigator.pushNamed(context, 'HomePage');
+                      if (user != null) {
+                        widget.pageController.animateToPage(
+                          0,
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOut,
+                        );
+                        setState(() {
+                          widget.updateIsConnected(true);
+                        });
                       }
                     } catch (e) {
                       print(e);
                     }
-
                     setState(() {
-                      showSpinner = false;
+                      showSpinner = false; // Hide spinner after authentication
                     });
                   },
                 ),

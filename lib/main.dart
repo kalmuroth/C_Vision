@@ -72,7 +72,7 @@ class _MyAppState extends State<MyApp> {
           ]
         : [
             LoginPage(pageController: _pageController, updateIsConnected: updateIsConnected),
-            SignupPage(),
+            SignupPage(pageController: _pageController, updateIsConnected: updateIsConnected),
           ];
 
     return MaterialApp(

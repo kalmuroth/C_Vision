@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'ScannerPage.dart';
 import 'main.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_animated_button/flutter_animated_button.dart';
 
 var kTextFieldDecoration = InputDecoration(
   hintText: 'Enter a value',
@@ -155,51 +156,55 @@ class _LoginPageState extends State<LoginPage> {
               height: 25,
             ),
             Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(100)),
-                    color: Color.fromRGBO(59, 105, 120, 1.0),
-                  ),
-                  child: TextButton(
-                    child: Text(
-                      "Login",
-                      style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18,
-                          color: Color.fromRGBO(132, 169, 172, 1.0)),
-                    ),
-                    onPressed: () async {
-                      setState(() {
-                        showSpinner = true; // Show spinner on button press
-                      });
+              padding: EdgeInsets.symmetric(horizontal: 32),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(100)),
+                  color: Color.fromRGBO(59, 105, 120, 1.0),
+                ),
+                child: AnimatedButton(
+                  animatedOn: AnimatedOn.onHover,
+                  height: 70,
+                  width: double.infinity, // Take the whole width of the container
+                  text: 'SUBMIT',
+                  isReverse: true,
+                  selectedTextColor: Colors.white,
+                  transitionType: TransitionType.BOTTOM_CENTER_ROUNDER,
+                  backgroundColor: Color.fromRGBO(132, 169, 172, 1.0),
+                  selectedBackgroundColor: Color.fromRGBO(59, 105, 120, 1.0),
+                  borderColor: Colors.black,
+                  borderWidth: 1,
+                  borderRadius: 50,
+                  onPress: () async {
+                    setState(() {
+                      showSpinner = true; 
+                    });
+                    try {
+                      final user = await _auth.signInWithEmailAndPassword(
+                        email: email,
+                        password: password,
+                      );
 
-                      try {
-                        final user = await _auth.signInWithEmailAndPassword(
-                          email: email,
-                          password: password,
+                      if (user != null) {
+                        widget.pageController.animateToPage(
+                          0,
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOut,
                         );
-
-                        if (user != null) {
-                          widget.pageController.animateToPage(
-                            0,
-                            duration: const Duration(milliseconds: 400),
-                            curve: Curves.easeOut,
-                          );
-                          setState(() {
-                            widget.updateIsConnected(true);
-                          });
-                        }
-                      } catch (e) {
-                        print(e);
+                        setState(() {
+                          widget.updateIsConnected(true);
+                        });
                       }
-
-                      setState(() {
-                        showSpinner = false; // Hide spinner after authentication
-                      });
-                    },
-                  ),
-                )),
+                    } catch (e) {
+                      print(e);
+                    }
+                    setState(() {
+                      showSpinner = false; // Hide spinner after authentication
+                    });
+                  },
+                ),
+              ),
+            ),
             SizedBox(height: 5),
             Center(
               child: Container(
@@ -219,16 +224,19 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text("Don't have an Account ? ",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal)),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal)
+                  ),
                 Text("Sign Up ",
-                    style: TextStyle(
-                        color: Color.fromRGBO(32, 64, 81, 1.0),
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12,
-                        decoration: TextDecoration.underline)),
+                  style: TextStyle(
+                    color: Color.fromRGBO(32, 64, 81, 1.0),
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                    decoration: TextDecoration.underline
+                  )
+                ),
               ],
             )
           ],
