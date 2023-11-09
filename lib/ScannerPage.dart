@@ -143,52 +143,52 @@ class _ScannerPageState extends State<ScannerPage> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.transparent,
-    body: DecoratedBox(
-      decoration: BoxDecoration(
-        color: Color(0xFFF9F9FB),
-      ),
-      child: ModalProgressHUD(
-        inAsyncCall: showSpinner,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 20,
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Color(0xFFF9F9FB),
+          ),
+          child: ModalProgressHUD(
+            inAsyncCall: showSpinner,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Expanded(
+                          child: products != null
+                              ? ListView.builder(
+                                  itemCount: products!.length,
+                                  scrollDirection: Axis.vertical,
+                                  shrinkWrap: true,
+                                  itemBuilder: (BuildContext context, int index) {
+                                    final product = products![index];
+                                    return makeCard(product);
+                                  },
+                                )
+                              : Center(
+                                  child: Text('No products found or user not authenticated.'),
+                                ),
+                        ),
+                      ],
                     ),
-                    Expanded(
-                      child: products != null
-                          ? ListView.builder(
-                              itemCount: products!.length,
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              itemBuilder: (BuildContext context, int index) {
-                                final product = products![index];
-                                return makeCard(product);
-                              },
-                            )
-                          : Center(
-                              child: Text('No products found or user not authenticated.'),
-                            ),
-                    ),
-                  ],
-                ),
-              ),
-              // Align the floating action button to the bottom right
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: FloatingActionButton(
-                    onPressed: () async {
+                  ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: FloatingActionButton(
+                        onPressed: () async {
                       var res = await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -203,16 +203,17 @@ Widget build(BuildContext context) {
                         postProduct();
                       }
                     },
-                    child: Icon(Icons.add),
-                    backgroundColor: Colors.blue, // Change the color if needed
+                        child: Icon(Icons.add),
+                        backgroundColor: Color.fromRGBO(59,105,120,1.0),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
