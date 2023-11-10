@@ -3,45 +3,71 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'rounded_button.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'package:provider/provider.dart'; 
+import 'package:provider/provider.dart';
 
 User? loggedinUser;
 
-final makeCard = (Map<String, dynamic> product) => Card(
-  elevation: 8.0,
-  margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-  color: Colors.transparent, // Set the card background color to transparent
-  child: Container(
-    decoration: BoxDecoration(
-      color: Color.fromRGBO(59,105,120,1.0),
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: makeListTile(product),
-  ),
-);
+final makeCard = (Map<String, dynamic> product, VoidCallback onDismiss) => Card(
+      elevation: 8.0,
+      margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+      color: Colors.transparent, // Set the card background color to transparent
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(59, 105, 120, 1.0),
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15.0),
+          child: Dismissible(
+            key: UniqueKey(),
+            direction: DismissDirection.endToStart,
+            onDismissed: (_) => onDismiss(),
+            background: Container(
+              alignment: AlignmentDirectional.centerEnd,
+              color: Colors.red,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                child: Icon(
+                  Icons.delete,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            child: makeListTile(product),
+          ),
+        ),
+      ),
+    );
 
 final makeListTile = (Map<String, dynamic> product) => ListTile(
-  contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-  leading: Container(
-    padding: EdgeInsets.only(right: 12.0),
-    decoration: new BoxDecoration(
-      border: new Border(
-        right: new BorderSide(width: 1.0, color: Colors.white))),
-    child: Icon(Icons.autorenew, color: Colors.white),
-  ),
-  title: Text(
-    product['name'],
-    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-  ),
-  subtitle: Row(
-    children: <Widget>[
-      Icon(Icons.linear_scale, color: Colors.red),
-      Text(" Intermediate", style: TextStyle(color: Colors.white))
-    ],
-  ),
-  trailing: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
-);
+      contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      leading: ClipRRect(
+        borderRadius: BorderRadius.circular(15.0),
+        child: Image.network(
+          product['imageUrl'] ?? '',
+          width: 50,
+          height: 50,
+          fit: BoxFit.cover,
+        ),
+      ),
+      title: Text(
+        (product['productName'] ?? '') + " , " + (product['brands'] ?? ''),
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
+      subtitle: Row(
+        children: <Widget>[
+          Icon(Icons.linear_scale, color: Colors.red),
+          Text(
+            " ${product['quantity'] ?? ''}",
+            style: TextStyle(color: Colors.white),
+          )
+        ],
+      ),
+      trailing: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
+    );
 
 class ScannerPage extends StatefulWidget {
   bool isConnected; // Define the parameter
@@ -80,17 +106,49 @@ class _ScannerPageState extends State<ScannerPage> {
   Future<void> getProduct() async {
     if (result.isNotEmpty) {
       try {
-        final document = await FirebaseFirestore.instance
-            .collection('product')
-            .where('value', isEqualTo: result)
-            .get();
+        final response = await http.get(
+          Uri.parse('https://world.openfoodfacts.org/api/v2/product/$result.json'),
+        );
 
-        if (document.docs.isNotEmpty) {
-          final documentSnapshot = document.docs.first;
-          setState(() {
-            productId = documentSnapshot.id;
-            productName = document.docs.first['name'];
+        if (response.statusCode == 200) {
+          print("test");
+          Map<String, dynamic> data = json.decode(response.body);
+
+          String productName = data['product']['product_name'] != null &&
+              data['product']['product_name'] != ""
+              ? data['product']['product_name']
+              : 'No Name';
+
+          String brands = data['product']['brands'] != null &&
+              data['product']['brands'] != ""
+              ? data['product']['brands']
+              : 'No Brand';
+
+          String quantity = data['product']['quantity'] != null &&
+              data['product']['quantity'] != ""
+              ? data['product']['quantity']
+              : 'No Quantity';
+
+          String imageUrl = data['product']['image_front_small_url'] != null && data['product']['image_front_small_url'] != ""
+            ? data['product']['image_front_small_url']
+            : '';
+
+          final documentReference =
+              FirebaseFirestore.instance.collection('product').doc();
+
+          await documentReference.set({
+            'barCode': result,
+            'productName': productName,
+            'brands': brands,
+            'quantity': quantity,
+            'imageUrl': imageUrl
           });
+
+          setState(() {
+            productId = documentReference.id;
+          });
+        } else {
+          print('Failed to fetch product details: ${response.statusCode}');
         }
       } catch (e) {
         print(e);
@@ -103,7 +161,8 @@ class _ScannerPageState extends State<ScannerPage> {
       final User? user = _auth.currentUser;
       if (user != null) {
         if (productId.isNotEmpty) {
-          final documentReference = FirebaseFirestore.instance.collection('product').doc(productId);
+          final documentReference =
+              FirebaseFirestore.instance.collection('product').doc(productId);
           await documentReference.update({
             'user': user.uid
           });
@@ -126,7 +185,12 @@ class _ScannerPageState extends State<ScannerPage> {
             .where('user', isEqualTo: user.uid)
             .get();
         if (querySnapshot.docs.isNotEmpty) {
-          return querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+          return querySnapshot.docs
+              .map((doc) => {
+                    ...doc.data() as Map<String, dynamic>,
+                    'id': doc.id,
+                  })
+              .toList();
         } else {
           return null;
         }
@@ -141,7 +205,15 @@ class _ScannerPageState extends State<ScannerPage> {
 
   Future<void> loadProducts() async {
     products = await getProductsByCurrentUser();
-    setState(() {}); // Refresh the UI to display the products
+    setState(() {
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted && (products == null || products!.isEmpty)) {
+          setState(() {
+            showSpinner = false;
+          });
+        }
+      });
+    });
   }
 
   @override
@@ -169,18 +241,30 @@ class _ScannerPageState extends State<ScannerPage> {
                         ),
                         Expanded(
                           child: products != null
-                            ? ListView.builder(
-                              itemCount: products!.length,
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              itemBuilder: (BuildContext context, int index) {
-                                final product = products![index];
-                                return makeCard(product);
-                              },
-                            )
-                          : Center(
-                            child: CircularProgressIndicator(), // Show spinner while loading
-                          ),
+                              ? ListView.builder(
+                                  itemCount: products!.length,
+                                  scrollDirection: Axis.vertical,
+                                  shrinkWrap: true,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    final product = products![index];
+                                    return makeCard(product, () {
+                                      // Remove the item from the database
+                                      FirebaseFirestore.instance
+                                          .collection('product')
+                                          .doc(product['id'])
+                                          .delete();
+
+                                      // Refresh the UI to remove the dismissed item
+                                      setState(() {
+                                        products!.removeAt(index);
+                                      });
+                                    });
+                                  },
+                                )
+                              : Center(
+                                  child: CircularProgressIndicator(),
+                                ),
                         ),
                       ],
                     ),
@@ -192,12 +276,13 @@ class _ScannerPageState extends State<ScannerPage> {
                       child: FloatingActionButton(
                         onPressed: () async {
                           setState(() {
-                            showSpinner = true; // Set spinner to true while loading
+                            showSpinner = true;
                           });
                           var res = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const SimpleBarcodeScannerPage(),
+                              builder: (context) =>
+                                  const SimpleBarcodeScannerPage(),
                             ),
                           );
                           if (res is String) {
@@ -206,14 +291,14 @@ class _ScannerPageState extends State<ScannerPage> {
                             });
                             await getProduct();
                             postProduct();
-                            await loadProducts(); // Refresh the list after adding a product
+                            await loadProducts();
                           }
                           setState(() {
-                            showSpinner = false; // Set spinner to false after loading
+                            showSpinner = false;
                           });
                         },
                         child: Icon(Icons.add),
-                        backgroundColor: Color.fromRGBO(59,105,120,1.0),
+                        backgroundColor: Color.fromRGBO(59, 105, 120, 1.0),
                       ),
                     ),
                   ),
