@@ -44,14 +44,14 @@ final makeCard = (Map<String, dynamic> product, VoidCallback onDismiss) => Card(
 
 final makeListTile = (Map<String, dynamic> product) => ListTile(
       contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-      leading: Container(
-        padding: EdgeInsets.only(right: 12.0),
-        decoration: new BoxDecoration(
-          border: new Border(
-            right: new BorderSide(width: 1.0, color: Colors.white),
-          ),
+      leading: ClipRRect(
+        borderRadius: BorderRadius.circular(15.0),
+        child: Image.network(
+          product['imageUrl'] ?? '',
+          width: 50,
+          height: 50,
+          fit: BoxFit.cover,
         ),
-        child: Icon(Icons.autorenew, color: Colors.white),
       ),
       title: Text(
         (product['productName'] ?? '') + " , " + (product['brands'] ?? ''),
@@ -115,19 +115,23 @@ class _ScannerPageState extends State<ScannerPage> {
           Map<String, dynamic> data = json.decode(response.body);
 
           String productName = data['product']['product_name'] != null &&
-                  data['product']['product_name'] != ""
+              data['product']['product_name'] != ""
               ? data['product']['product_name']
               : 'No Name';
 
           String brands = data['product']['brands'] != null &&
-                  data['product']['brands'] != ""
+              data['product']['brands'] != ""
               ? data['product']['brands']
               : 'No Brand';
 
           String quantity = data['product']['quantity'] != null &&
-                  data['product']['quantity'] != ""
+              data['product']['quantity'] != ""
               ? data['product']['quantity']
               : 'No Quantity';
+
+          String imageUrl = data['product']['image_front_small_url'] != null && data['product']['image_front_small_url'] != ""
+            ? data['product']['image_front_small_url']
+            : '';
 
           final documentReference =
               FirebaseFirestore.instance.collection('product').doc();
@@ -137,6 +141,7 @@ class _ScannerPageState extends State<ScannerPage> {
             'productName': productName,
             'brands': brands,
             'quantity': quantity,
+            'imageUrl': imageUrl
           });
 
           setState(() {
