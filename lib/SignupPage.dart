@@ -172,12 +172,10 @@ class _SignupPageState extends State<SignupPage> {
                       showSpinner = true; 
                     });
                     try {
-                      final user = await _auth.signInWithEmailAndPassword(
-                        email: email,
-                        password: password,
+                      final newUser = await _auth.createUserWithEmailAndPassword(
+                        email: email, password: password
                       );
-
-                      if (user != null) {
+                      if (newUser != null) {
                         widget.pageController.animateToPage(
                           0,
                           duration: const Duration(milliseconds: 400),
