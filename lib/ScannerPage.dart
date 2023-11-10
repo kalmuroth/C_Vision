@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'rounded_button.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart'; 
 
@@ -31,13 +33,16 @@ final makeListTile = (Map<String, dynamic> product) => ListTile(
     child: Icon(Icons.autorenew, color: Colors.white),
   ),
   title: Text(
-    product['name'],
+    product['productName'] + " , " + product['brands'] ?? '',  // Add null check here
     style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
   ),
   subtitle: Row(
     children: <Widget>[
       Icon(Icons.linear_scale, color: Colors.red),
-      Text(" Intermediate", style: TextStyle(color: Colors.white))
+      Text(
+        " ${product['quantity'] ?? ''}",  // Add null check here
+        style: TextStyle(color: Colors.white),
+      )
     ],
   ),
   trailing: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
@@ -78,20 +83,43 @@ class _ScannerPageState extends State<ScannerPage> {
   }
 
   Future<void> getProduct() async {
-    if (result.isNotEmpty) {
-      try {
-        final document = await FirebaseFirestore.instance
-            .collection('product')
-            .where('value', isEqualTo: result)
-            .get();
+  if (result.isNotEmpty) {
+    try {
+      final response = await http.get(
+        Uri.parse('https://world.openfoodfacts.org/api/v2/product/$result.json'),
+      );
 
-        if (document.docs.isNotEmpty) {
-          final documentSnapshot = document.docs.first;
-          setState(() {
-            productId = documentSnapshot.id;
-            productName = document.docs.first['name'];
-          });
-        }
+      if (response.statusCode == 200) {
+        print("test");
+        Map<String, dynamic> data = json.decode(response.body);
+
+        String productName = data['product']['product_name'] != null && data['product']['product_name'] != ""
+        ? data['product']['product_name']
+        : 'No Name';
+
+        String brands = data['product']['brands'] != null && data['product']['brands'] != ""
+            ? data['product']['brands']
+            : 'No Brand';
+
+        String quantity = data['product']['quantity'] != null && data['product']['quantity'] != ""
+            ? data['product']['quantity']
+        : 'No Quantity';
+
+        final documentReference = FirebaseFirestore.instance.collection('product').doc();
+
+        await documentReference.set({
+          'barCode': result,
+          'productName': productName,
+          'brands': brands,
+          'quantity': quantity,
+        });
+
+        setState(() {
+          productId = documentReference.id;
+        });
+      } else {
+        print('Failed to fetch product details: ${response.statusCode}');
+      }
       } catch (e) {
         print(e);
       }
@@ -126,7 +154,9 @@ class _ScannerPageState extends State<ScannerPage> {
             .where('user', isEqualTo: user.uid)
             .get();
         if (querySnapshot.docs.isNotEmpty) {
-          return querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+          return querySnapshot.docs
+              .map((doc) => doc.data() as Map<String, dynamic>? ?? {})
+              .toList();
         } else {
           return null;
         }
@@ -141,8 +171,16 @@ class _ScannerPageState extends State<ScannerPage> {
 
   Future<void> loadProducts() async {
     products = await getProductsByCurrentUser();
-    setState(() {}); // Refresh the UI to display the products
-  }
+    setState(() {
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted && (products == null || products!.isEmpty)) {
+          setState(() {
+            showSpinner = false;
+          });
+        }
+      });
+    });
+    }
 
   @override
   Widget build(BuildContext context) {

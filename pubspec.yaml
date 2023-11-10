@@ -11,6 +11,7 @@ environment:
 
 dependencies:
   simple_barcode_scanner: ^0.0.8
+  http: ^0.13.3
   cloud_firestore: ^4.11.0
   cloud_functions: ^4.5.1
   firebase_auth: ^4.11.1
