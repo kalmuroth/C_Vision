@@ -7,34 +7,36 @@ import 'SignupPage.dart';
 import 'ScannerPage.dart';
 import 'CameraPage.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: FirebaseOptions(
-    apiKey: "AIzaSyDtjVzfF2BAoMlNKeXNhUNUzWx2b-hmvvA",
-    authDomain: "cvision-943d3.firebaseapp.com",
-    projectId: "cvision-943d3",
-    storageBucket: "cvision-943d3.appspot.com",
-    messagingSenderId: "999491928239",
-    appId: "1:999491928239:web:55a00db8b5d5a7663b145a",
-    measurementId: "G-5SXP105SK9"
-    ),
+        apiKey: "AIzaSyDtjVzfF2BAoMlNKeXNhUNUzWx2b-hmvvA",
+        authDomain: "cvision-943d3.firebaseapp.com",
+        projectId: "cvision-943d3",
+        storageBucket: "cvision-943d3.appspot.com",
+        messagingSenderId: "999491928239",
+        appId: "1:999491928239:web:55a00db8b5d5a7663b145a",
+        measurementId: "G-5SXP105SK9"),
   );
   runApp(MyApp());
 }
 
 List<RollingBottomBarItem> nonAdminWidgets(_MyAppState parent) {
   return <RollingBottomBarItem>[
-    RollingBottomBarItem(Icons.camera, label: 'Login', activeColor: Colors.white),
-    RollingBottomBarItem(Icons.person, label: 'Register', activeColor: Colors.white),
+    RollingBottomBarItem(Icons.camera,
+        label: 'Login', activeColor: Colors.white),
+    RollingBottomBarItem(Icons.person,
+        label: 'Register', activeColor: Colors.white),
   ];
 }
 
 List<RollingBottomBarItem> adminWidgets(_MyAppState parent) {
   return <RollingBottomBarItem>[
-    RollingBottomBarItem(Icons.audiotrack, label: 'Scanner', activeColor: Colors.white),
-    RollingBottomBarItem(Icons.beach_access, label: 'Camera', activeColor: Colors.white),
+    RollingBottomBarItem(Icons.audiotrack,
+        label: 'Scanner', activeColor: Colors.white),
+    RollingBottomBarItem(Icons.beach_access,
+        label: 'Camera', activeColor: Colors.white),
   ];
 }
 
@@ -68,11 +70,15 @@ class _MyAppState extends State<MyApp> {
     List<Widget> pages = isConnected
         ? [
             ScannerPage(isConnected: isConnected),
-            CameraPage(isConnected: isConnected),
+            CameraPage(),
           ]
         : [
-            LoginPage(pageController: _pageController, updateIsConnected: updateIsConnected),
-            SignupPage(pageController: _pageController, updateIsConnected: updateIsConnected),
+            LoginPage(
+                pageController: _pageController,
+                updateIsConnected: updateIsConnected),
+            SignupPage(
+                pageController: _pageController,
+                updateIsConnected: updateIsConnected),
           ];
 
     return MaterialApp(

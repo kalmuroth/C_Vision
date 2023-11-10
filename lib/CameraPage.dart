@@ -1,82 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'rounded_button.dart';
-import 'rounded_button.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'package:provider/provider.dart'; 
-
-User? loggedinUser;
+import 'package:url_launcher/url_launcher.dart';
 
 class CameraPage extends StatefulWidget {
-  bool isConnected; // Define the parameter
-
-  CameraPage({required this.isConnected}); // Named constructor to accept the parameter
-
   @override
   _CameraPageState createState() => _CameraPageState();
 }
 
 class _CameraPageState extends State<CameraPage> {
   final _auth = FirebaseAuth.instance;
-  String result = '';
-  String productName = '';
-  bool showSpinner = false;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  String cameraUrl = '';
+  String userId = '';
+
+  @override
   void initState() {
     super.initState();
-    getCurrentUser();
+    getCurrentUserCameraUrl();
   }
 
-  void getCurrentUser() async {
-    try {
-      final user = await _auth.currentUser;
-      if (user != null) {
-        loggedinUser = user;
+  void getCurrentUserCameraUrl() async {
+    User? user = _auth.currentUser;
+
+    if (user != null) {
+      try {
+        var cameraQuerySnapshot = await _firestore
+            .collection('camera')
+            .where('iduser', isEqualTo: user.uid)
+            .get();
+
+        if (cameraQuerySnapshot.docs.isNotEmpty) {
+          var cameraData = cameraQuerySnapshot.docs.first;
+          setState(() {
+            cameraUrl = cameraData['url'];
+            userId = user.uid; // Ajout de l'ID utilisateur
+          });
+          print(
+              "User ID: $userId"); // Affichage de l'ID utilisateur dans la console
+          print("Camera URL: $cameraUrl");
+        } else {
+          print("No camera found for this user");
+        }
+      } catch (e) {
+        print("Error: $e");
       }
-    } catch (e) {
-      print(e);
     }
   }
 
-  void getProduct() async {
-    if (result.isNotEmpty) {
-      try {
-        final document = await FirebaseFirestore.instance
-            .collection('product')
-            .where('value', isEqualTo: result)
-            .get();
-
-        if (document.docs.isNotEmpty) {
-          setState(() {
-            productName = document.docs.first['name'];
-          });
-        }
-      } catch (e) {
-        print(e);
-      }
+  void _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent, // Set the Scaffold's background color to transparent
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Color(0xFFF9F9FB), // Set the color to #F9F9FB
-        ),
-        child: ModalProgressHUD(
-          inAsyncCall: showSpinner,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-            ),
-          ),
-        ),
+      appBar: AppBar(
+        title: Text('Camera Page'),
+      ),
+      body: Center(
+        child: cameraUrl.isEmpty
+            ? Text('No camera found')
+            : InkWell(
+                child: Text('User ID: $userId\nCamera URL: $cameraUrl'),
+                onTap: () => _launchURL(cameraUrl),
+              ),
       ),
     );
   }
