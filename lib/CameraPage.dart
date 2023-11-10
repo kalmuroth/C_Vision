@@ -1,7 +1,12 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter_plus/webview_flutter_plus.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 
 class CameraPage extends StatefulWidget {
   @override
@@ -11,6 +16,12 @@ class CameraPage extends StatefulWidget {
 class _CameraPageState extends State<CameraPage> {
   final _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers = {
+    Factory(() => EagerGestureRecognizer())
+  };
+
+  UniqueKey _key = UniqueKey();
 
   String cameraUrl = '';
   String userId = '';
@@ -57,20 +68,39 @@ class _CameraPageState extends State<CameraPage> {
     }
   }
 
+  Future<String> fetchUrlWithHeaders(String url) async {
+    var response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'ngrok-skip-browser-warning': 'any-value',
+        'User-Agent': 'your-custom-user-agent',
+      },
+    );
+    return response.body;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Camera Page'),
       ),
-      body: Center(
-        child: cameraUrl.isEmpty
-            ? Text('No camera found')
-            : InkWell(
-                child: Text('User ID: $userId\nCamera URL: $cameraUrl'),
-                onTap: () => _launchURL(cameraUrl),
-              ),
-      ),
+      body: cameraUrl.isEmpty
+        ? Text('No camera found')
+        : WebViewPlus(
+          key: _key,
+          initialUrl: cameraUrl,
+          gestureRecognizers: gestureRecognizers,
+          onWebViewCreated: (controller) {
+            controller.loadUrl(
+              cameraUrl,
+              headers: {
+                'ngrok-skip-browser-warning': 'any-value',
+                'User-Agent': 'your-custom-user-agent',
+              },
+            );
+          },
+        ),
     );
   }
 }
